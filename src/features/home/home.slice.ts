@@ -21,6 +21,8 @@ const homeSlice = createSlice({
 
 export const { actions: homeActions } = homeSlice;
 
+export const { setSearch } = homeSlice.actions;
+
 export const selectSearch = (state: RootState): string => state.home.search;
 
 export default homeSlice;

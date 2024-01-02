@@ -6,6 +6,7 @@ import { type TextInputProps } from "react-native";
 interface Props extends TextInputProps {
   control: any;
   name: string;
+  color?: string;
 }
 
 const Input: React.FC<Props> = ({ name, control, ...inputProps }) => {

@@ -20,10 +20,10 @@ import { type HomeRoute } from "@routes/home.routes";
 interface InfoProps {
   title: string;
   icon: React.ReactNode;
-  quantity: number;
+  quantity?: number;
 }
 
-const Info = ({ icon, title, quantity }: InfoProps) => {
+const Info = ({ icon, title, quantity = 0 }: InfoProps) => {
   return (
     <Box alignItems="center">
       <Text size="xs" color="$secondary100">

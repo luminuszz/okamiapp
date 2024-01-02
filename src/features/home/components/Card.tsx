@@ -62,32 +62,14 @@ export const Card: React.FC<CardProps> = ({
           alt="algo aqui"
         />
       </Pressable>
-      <HStack
-        mt="$3"
-        justifyContent="space-between"
-        alignItems="center"
-        px="$2"
-        space="md"
-      >
-        <Text
-          maxWidth={190}
-          isTruncated
-          color="$secondary100"
-          fontWeight="bold"
-          fontSize="$sm"
-        >
+      <HStack mt="$3" justifyContent="space-between" alignItems="center" px="$2" space="md">
+        <Text maxWidth={190} isTruncated color="$secondary100" fontWeight="bold" fontSize="$sm">
           {data.name}
         </Text>
 
         <HStack alignItems="center" space="sm">
           <Icon as={() => <Feather name="clock" size={24} color="white" />} />
-          <Text
-            fontSize="$sm"
-            fontWeight="medium"
-            maxWidth={200}
-            isTruncated
-            color="$secondary100"
-          >
+          <Text fontSize="$sm" fontWeight="medium" maxWidth={200} isTruncated color="$secondary100">
             {atTime}
           </Text>
         </HStack>
@@ -106,7 +88,11 @@ export const Card: React.FC<CardProps> = ({
         action="success"
         variant="outline"
       >
-        <Pressable onPress={() => onClickMarRead(data.id, data.chapter)}>
+        <Pressable
+          onPress={() => {
+            onClickMarRead(data.id, data.chapter);
+          }}
+        >
           <BadgeText>{chapterMessage}</BadgeText>
         </Pressable>
       </Badge>

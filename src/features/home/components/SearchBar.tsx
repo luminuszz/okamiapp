@@ -8,18 +8,21 @@ import {
   InputIcon,
 } from "@gluestack-ui/themed";
 import { useAppDispatch, useAppSelector } from "@store/index";
-import { homeActions, selectSearch } from "../home.slice";
+import { setSearch, selectSearch } from "../home.slice";
 import { AntDesign, Feather } from "@expo/vector-icons";
+import { Pressable } from "react-native";
 
 export const SearchBar: React.FC = () => {
-  const search = useAppSelector(selectSearch);
   const [inputIsShwoing, setInputIsShowing] = useState(false);
+
+  const search = useAppSelector(selectSearch);
 
   const dispatch = useAppDispatch();
 
   const handleChange = (value: string): void => {
-    dispatch(homeActions.setSearch(value));
+    dispatch(setSearch(value));
   };
+
   const closeInput = () => {
     setInputIsShowing(false);
   };
@@ -27,27 +30,18 @@ export const SearchBar: React.FC = () => {
   return inputIsShwoing ? (
     <Box flex={1} justifyContent="center" alignItems="center">
       <Input size="sm">
-        <InputIcon marginLeft="$1">
-          <Feather name="search" size={20} color="white" />
-        </InputIcon>
-        <InputField
-          placeholder="Pesquisar..."
-          color="white"
-          value={search}
-          w="$full"
-          onChangeText={handleChange}
-        />
+        <InputIcon marginLeft="$1" as={<Feather name="search" size={20} color="white" />} />
+        <InputField placeholder="Pesquisar..." color="white" value={search} w="$full" onChangeText={handleChange} />
 
         {search.length > 0 && (
-          <InputIcon
-            mr="$1"
+          <Pressable
             onPress={() => {
               closeInput();
-              dispatch(homeActions.setSearch(""));
+              dispatch(setSearch(""));
             }}
           >
-            <AntDesign name="close" size={20} color="white" />
-          </InputIcon>
+            <InputIcon as={<AntDesign name="close" size={20} color="white" />} mr="$1" />
+          </Pressable>
         )}
       </Input>
     </Box>
@@ -59,9 +53,7 @@ export const SearchBar: React.FC = () => {
           setInputIsShowing(true);
         }}
       >
-        <ButtonIcon
-          as={() => <Feather name="search" size={20} color="white" />}
-        ></ButtonIcon>
+        <ButtonIcon as={() => <Feather name="search" size={20} color="white" />}></ButtonIcon>
       </Button>
     </Box>
   );

@@ -8,7 +8,7 @@ import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useFetchAllWorksUnreadQuery } from "@services/okami";
 import { compareDesc } from "date-fns";
 import { FlatList } from "react-native";
-import { HomeRoutesParams } from "@routes/home.routes";
+import { type HomeRoutesParams } from "@routes/home.routes";
 
 const EmptyList = ({ isLoading }: { isLoading: boolean }) => (
   <Box h="$full" mt="$10">

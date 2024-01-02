@@ -13,11 +13,11 @@ import {
   VStack,
 } from "@gluestack-ui/themed";
 import { useMarkWorkReadMutation } from "@services/okami";
-import { type AppRoute } from "@routes/app.routes";
 import { AntDesign } from "@expo/vector-icons";
 import { useAppToast } from "@components/Toast";
+import { type HomeRoute } from "@routes/home.routes";
 
-interface Props extends AppRoute<"UpdateChapter"> {}
+interface Props extends HomeRoute<"UpdateChapter"> {}
 
 const UpdateChapterPage: React.FC<Props> = ({ route, navigation }) => {
   const toast = useAppToast();
@@ -41,7 +41,7 @@ const UpdateChapterPage: React.FC<Props> = ({ route, navigation }) => {
       .then(() => {
         toast.show("Marcado como lido", "success");
 
-        navigation.push("Home");
+        navigation.push("HomeScreen");
       })
       .catch(() => {
         toast.show("Houve um erro ao marcar como lido", "error");
@@ -57,9 +57,7 @@ const UpdateChapterPage: React.FC<Props> = ({ route, navigation }) => {
           </Heading>
 
           <Button onPress={handleGoBack} bgColor="transparent">
-            <ButtonIcon
-              as={() => <AntDesign name="arrowleft" size={24} color="white" />}
-            />
+            <ButtonIcon as={() => <AntDesign name="arrowleft" size={24} color="white" />} />
           </Button>
         </HStack>
 
@@ -78,11 +76,7 @@ const UpdateChapterPage: React.FC<Props> = ({ route, navigation }) => {
               height={40}
             />
           </Input>
-          <Button
-            onPress={handleMarkAsRead}
-            isDisabled={isMarkingRead}
-            backgroundColor="$green500"
-          >
+          <Button onPress={handleMarkAsRead} isDisabled={isMarkingRead} backgroundColor="$green500">
             {isMarkingRead ? (
               <ButtonSpinner mr="$1" />
             ) : (
