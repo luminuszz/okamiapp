@@ -8,40 +8,40 @@ import {
   InputIcon,
 } from "@gluestack-ui/themed";
 import { useAppDispatch, useAppSelector } from "@store/index";
-import { setSearch, selectSearch } from "../home.slice";
+import { homeActions, selectSearch } from "../home.slice";
 import { AntDesign, Feather } from "@expo/vector-icons";
-import { Pressable } from "react-native";
 
 export const SearchBar: React.FC = () => {
-  const [inputIsShwoing, setInputIsShowing] = useState(false);
-
   const search = useAppSelector(selectSearch);
+  const [inputIsShwoing, setInputIsShowing] = useState(false);
 
   const dispatch = useAppDispatch();
 
   const handleChange = (value: string): void => {
-    dispatch(setSearch(value));
+    dispatch(homeActions.setSearch(value));
   };
-
   const closeInput = () => {
     setInputIsShowing(false);
   };
 
   return inputIsShwoing ? (
-    <Box flex={1} justifyContent="center" alignItems="center">
+    <Box flex={1} justifyContent="center" alignItems="center" pt="$5">
       <Input size="sm">
-        <InputIcon marginLeft="$1" as={<Feather name="search" size={20} color="white" />} />
+        <InputIcon marginLeft="$1">
+          <Feather name="search" size={20} color="white" />
+        </InputIcon>
         <InputField placeholder="Pesquisar..." color="white" value={search} w="$full" onChangeText={handleChange} />
 
         {search.length > 0 && (
-          <Pressable
+          <InputIcon
+            mr="$1"
             onPress={() => {
               closeInput();
-              dispatch(setSearch(""));
+              dispatch(homeActions.setSearch(""));
             }}
           >
-            <InputIcon as={<AntDesign name="close" size={20} color="white" />} mr="$1" />
-          </Pressable>
+            <AntDesign name="close" size={20} color="white" />
+          </InputIcon>
         )}
       </Input>
     </Box>

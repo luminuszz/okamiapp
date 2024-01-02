@@ -18,19 +18,21 @@ class StorageService {
   constructor(private readonly storage: StorageProvider) {}
 
   public async get<Value>(key: StorageKeys): Promise<Value | null> {
-    return await this.storage.getItem(key);
+    return await this.storage.getItem(storageKeys[key]);
   }
 
   public async set(key: StorageKeys, value: string) {
-    await this.storage.setItem(key, value);
+    await this.storage.setItem(storageKeys[key], value);
   }
 
   public async remove(key: StorageKeys) {
-    await this.storage.removeItem(key);
+    await this.storage.removeItem(storageKeys[key]);
   }
 
   public async multiSet(keyValuePairs: Array<[StorageKeys, any]>) {
-    await this.storage.multiSet(keyValuePairs);
+    
+
+    await this.storage.multiSet(keyValuePairs.map(([key, value]) => [storageKeys[key], value]));
   }
 }
 

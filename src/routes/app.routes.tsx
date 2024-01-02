@@ -1,5 +1,5 @@
 import { Entypo, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { type BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { HomeRoutes } from "./home.routes";
 import { useToken } from "@gluestack-style/react";
@@ -11,6 +11,11 @@ export type AppTabMenuRoutesParams = {
   FinishWork: undefined;
   WorksReadPage: undefined;
 };
+
+export type BottonTabRoute<Route extends keyof AppTabMenuRoutesParams> = BottomTabScreenProps<
+  AppTabMenuRoutesParams,
+  Route
+>;
 
 export const screenDefaultOptions = { headerShown: false };
 
@@ -27,7 +32,7 @@ export const AppRoutes = () => {
 
   return (
     <TabNavigator
-      initialRouteName="Home"
+      initialRouteName="FinishWork"
       screenOptions={({ route }) => ({
         ...screenDefaultOptions,
         tabBarStyle: {
