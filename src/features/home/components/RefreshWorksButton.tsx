@@ -1,14 +1,13 @@
 import React, { useEffect } from "react";
 import { useLazyRefreshWorksQuery } from "@services/okami";
-import { Button, Spinner } from "@gluestack-ui/themed";
+import { Button, ButtonIcon, Spinner } from "@gluestack-ui/themed";
 import { EvilIcons } from "@expo/vector-icons";
 import { useAppToast } from "@components/Toast";
 
 export const RefreshWorksButton: React.FC = () => {
   const toast = useAppToast();
 
-  const [refreshWorks, { isLoading: isRefreshingWorks, isSuccess }] =
-    useLazyRefreshWorksQuery();
+  const [refreshWorks, { isLoading: isRefreshingWorks, isSuccess }] = useLazyRefreshWorksQuery();
 
   const handleRefreshWorks = (): void => {
     void refreshWorks(undefined);
@@ -21,13 +20,10 @@ export const RefreshWorksButton: React.FC = () => {
   }, [isSuccess]);
 
   return isRefreshingWorks ? (
-    <Spinner ml="$2" mt="$12" color="gray.100" size="large" />
+    <Spinner color="gray.100" size="large" />
   ) : (
-    <Button
-      mt="$10"
-      isDisabled={isRefreshingWorks}
-      onPress={handleRefreshWorks}
-      as={<EvilIcons name="refresh" size={40} color="white" />}
-    />
+    <Button size="xs" bgColor="transparent" isDisabled={isRefreshingWorks} onPress={handleRefreshWorks}>
+      <ButtonIcon as={() => <EvilIcons name="refresh" size={40} color="white" />}></ButtonIcon>
+    </Button>
   );
 };

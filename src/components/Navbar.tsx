@@ -22,6 +22,7 @@ import { Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { type HomeRoutesParams } from "@routes/home.routes";
+import { RefreshWorksButton } from "@features/home/components/RefreshWorksButton";
 
 const currentTimezone = getCalendars()?.[0]?.timeZone ?? "";
 
@@ -43,7 +44,7 @@ export const Navbar: React.FC = () => {
   const subTitle = currentHour >= 12 ? "Boa tarde" : currentHour >= 18 ? "Boa noite" : "Bom dia";
 
   return (
-    <Box px="$2" py="$2">
+    <Box px="$=1" py="$6" flexDirection="row" justifyContent="space-between">
       <Box flexDirection="row" justifyContent="space-between" alignItems="center">
         <HStack alignItems="center" space="md">
           <Pressable
@@ -67,11 +68,14 @@ export const Navbar: React.FC = () => {
             </Text>
           </VStack>
         </HStack>
+      </Box>
 
+      <HStack alignItems="center" space="xs">
+        <RefreshWorksButton />
         <Button bgColor="transparent" onPress={handleLogout}>
           <ButtonIcon as={() => <MaterialIcons name="logout" size={25} color="white" />} />
         </Button>
-      </Box>
+      </HStack>
     </Box>
   );
 };

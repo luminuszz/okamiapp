@@ -44,6 +44,8 @@ const UpdateWorkPage: React.FC<Props> = ({ navigation, route }) => {
 
   const { data: work, isLoading } = useGetOneWorkQuery(workId);
 
+  console.log({ route });
+
   const {
     control,
     handleSubmit,
@@ -108,6 +110,7 @@ const UpdateWorkPage: React.FC<Props> = ({ navigation, route }) => {
         <VStack mt="$10" space="md">
           <Box position="relative">
             <Image
+              alt={work?.name}
               resizeMode="cover"
               borderRadius={"$3xl" as any}
               w="$full"

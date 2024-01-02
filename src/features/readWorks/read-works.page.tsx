@@ -1,20 +1,16 @@
+import Container from "@components/Container";
+import { Navbar } from "@components/Navbar";
+import { WorkList } from "@components/WorkList";
+import { SearchBar } from "@features/home/components/SearchBar";
+import { selectSearch, setSearch } from "@features/home/home.slice";
+import { VStack } from "@gluestack-ui/themed";
+import { useFetchAllWorksReadQuery } from "@services/okami";
+import { useAppDispatch, useAppSelector } from "@store/index";
+import { compareDesc } from "date-fns";
 import React, { useEffect, useMemo } from "react";
 
-import { Navbar } from "@components/Navbar";
-import { SearchBar } from "@features/home/components/SearchBar";
-import { VStack } from "@gluestack-ui/themed";
-import { type HomeRoute } from "@routes/home.routes";
-import Container from "../../components/Container";
-import { WorkList } from "../../components/WorkList";
-import { useAppDispatch, useAppSelector } from "@store/index";
-import { useFetchAllWorksUnreadQuery } from "@services/okami";
-import { selectSearch, setSearch } from "./home.slice";
-import { compareDesc } from "date-fns";
-
-interface Props extends HomeRoute<"HomeScreen"> {}
-
-const HomePage: React.FC<Props> = () => {
-  const { data = [], isFetching, isLoading, refetch } = useFetchAllWorksUnreadQuery(null);
+const ReadWorksList = (props) => {
+  const { data = [], isFetching, isLoading, refetch } = useFetchAllWorksReadQuery(null);
 
   const appDispatch = useAppDispatch();
 
@@ -45,4 +41,4 @@ const HomePage: React.FC<Props> = () => {
   );
 };
 
-export default HomePage;
+export default ReadWorksList;

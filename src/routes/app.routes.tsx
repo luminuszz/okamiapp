@@ -4,7 +4,7 @@ import React from "react";
 import { HomeRoutes } from "./home.routes";
 import { useToken } from "@gluestack-style/react";
 import FinishWorkPage from "@features/work/finish-work.page";
-import ReadWorksList from "@features/readWorks/read-works-list";
+import ReadWorksList from "@features/readWorks/read-works.page";
 
 export type AppTabMenuRoutesParams = {
   Home: undefined;
@@ -22,25 +22,29 @@ export const screenDefaultOptions = { headerShown: false };
 const { Navigator: TabNavigator, Screen: TabScreen } = createBottomTabNavigator<AppTabMenuRoutesParams>();
 
 const tabIconsMap = {
-  Home: <Entypo name="home" size={24} color="white" />,
-  FinishWork: <Ionicons name="bookmarks" size={24} color="white" />,
-  WorksReadPage: <MaterialCommunityIcons name="book-check" size={24} color="white" />,
+  Home: (color: string) => <Entypo name="home" size={24} color={color} />,
+  FinishWork: (color: string) => <Ionicons name="bookmarks" size={24} color={color} />,
+  WorksReadPage: (color: string) => <MaterialCommunityIcons name="book-check" size={24} color={color} />,
 };
 
 export const AppRoutes = () => {
   const resolvedBackground = useToken("colors", "blueGray900");
+  const resolvedFocusIconColor = useToken("colors", "primary600");
+  const resolvedInactiveColor = useToken("colors", "blueGray400");
 
   return (
     <TabNavigator
-      initialRouteName="FinishWork"
-      screenOptions={({ route }) => ({
+      initialRouteName="Home"
+      screenOptions={({ route, navigation }) => ({
         ...screenDefaultOptions,
         tabBarStyle: {
           backgroundColor: resolvedBackground,
         },
         tabBarLabel: () => false,
         tabBarBackground: () => null,
-        tabBarIcon: () => tabIconsMap[route.name],
+        tabBarIcon: ({ color }) => tabIconsMap[route.name](color),
+        tabBarActiveTintColor: resolvedFocusIconColor,
+        tabBarInactiveTintColor: resolvedInactiveColor,
       })}
     >
       <TabScreen name="Home" component={HomeRoutes} />

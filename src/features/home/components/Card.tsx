@@ -43,10 +43,13 @@ export const Card: React.FC<CardProps> = ({
     }
   );
 
-  const chapterMessage =
+  const unreadChapterMessage =
     data.category === WORK_CATEGORY.enum.ANIME
       ? `Novo Episódio ${data.nextChapter}`
       : `Novo Capítulo ${data.nextChapter}`;
+
+  const readChapterMessage =
+    data.category === WORK_CATEGORY.enum.ANIME ? `Ultimo Episódio ${data.chapter}` : `Ultimo Capítulo ${data.chapter}`;
 
   return (
     <Box borderRadius="$3xl" position="relative">
@@ -85,15 +88,15 @@ export const Card: React.FC<CardProps> = ({
         backgroundColor="$secondary100"
         size="md"
         justifyContent="center"
-        action="success"
+        action={data.hasNewChapter ? "success" : "info"}
         variant="outline"
       >
         <Pressable
           onPress={() => {
-            onClickMarRead(data.id, data.chapter);
+            data.hasNewChapter && onClickMarRead(data.id, data.chapter);
           }}
         >
-          <BadgeText>{chapterMessage}</BadgeText>
+          <BadgeText>{data.hasNewChapter ? unreadChapterMessage : readChapterMessage}</BadgeText>
         </Pressable>
       </Badge>
 
