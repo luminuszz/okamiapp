@@ -6,7 +6,7 @@ import UpdateWorkPage from "@features/work/update-work.page";
 import { type NativeStackScreenProps, createNativeStackNavigator } from "@react-navigation/native-stack";
 
 export type HomeRoutesParams = {
-  Home: undefined;
+  HomeScreen: undefined;
   UpdateChapter: {
     workId: string;
     chapter: number;
@@ -24,8 +24,8 @@ const { Screen, Navigator } = createNativeStackNavigator<HomeRoutesParams>();
 
 export const HomeRoutes = () => {
   return (
-    <Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
-      <Screen name="Home" component={HomePage} />
+    <Navigator screenOptions={{ headerShown: false }} initialRouteName="HomeScreen">
+      <Screen name="HomeScreen" component={HomePage} />
       <Screen name="UpdateChapter" component={UpdateChapterPage} />
       <Screen name="UpdateWorkPage" component={UpdateWorkPage} />
       <Screen name="UserDetails" component={UserPage} />
