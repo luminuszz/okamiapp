@@ -1,5 +1,5 @@
-import { type AuthRoute } from "@routes/auth.routes";
-import React from "react";
+import Container from "@components/Container";
+import { useAppToast } from "@components/Toast";
 import {
   Button,
   ButtonSpinner,
@@ -14,14 +14,14 @@ import {
   InputField,
   VStack,
 } from "@gluestack-ui/themed";
-import Container from "@components/Container";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type AuthRoute } from "@routes/auth.routes";
+import { storageService } from "@services/localstorage";
 import { useLoginMutation } from "@services/okami";
+import { useAppDispatch } from "@store/index";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppToast } from "@components/Toast";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAppDispatch } from "@store/index";
 import { setToken } from "./auth.slice";
 
 const formSchema = z.object({
@@ -31,8 +31,7 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-const loginImage =
-  "https://raw.githubusercontent.com/luminuszz/okami/master/images/okami-logo.png";
+const loginImage = "https://raw.githubusercontent.com/luminuszz/okami/master/images/okami-logo.png";
 
 interface Props extends AuthRoute<"LoginPage"> {}
 
@@ -58,9 +57,12 @@ const LoginPage: React.FC<Props> = () => {
       .unwrap()
       .then(async ({ token }) => {
         if (token) {
-          void AsyncStorage.setItem("@okami:token", token).then(() => {
-            dispatch(setToken(token));
-          });
+          dispatch(setToken(token));
+
+          await storageService.multiSet([
+            ["token", token],
+            ["email", data.email],
+          ]);
         }
 
         show("Login feito com sucesso", "success");
@@ -93,9 +95,7 @@ const LoginPage: React.FC<Props> = () => {
 
           <FormControl size="sm">
             <FormControlLabel mb="$1">
-              <FormControlLabelText color="$secondary100">
-                E-mail
-              </FormControlLabelText>
+              <FormControlLabelText color="$secondary100">E-mail</FormControlLabelText>
             </FormControlLabel>
             <Input>
               <Controller
@@ -118,9 +118,7 @@ const LoginPage: React.FC<Props> = () => {
 
           <FormControl size="sm">
             <FormControlLabel mb="$1">
-              <FormControlLabelText color="$secondary100">
-                Senha
-              </FormControlLabelText>
+              <FormControlLabelText color="$secondary100">Senha</FormControlLabelText>
             </FormControlLabel>
 
             <Controller
@@ -140,11 +138,7 @@ const LoginPage: React.FC<Props> = () => {
             />
           </FormControl>
 
-          <Button
-            onPress={handleSubmit(handleLogin)}
-            isDisabled={isLoading || !isValid}
-            bgColor="$darkBlue600"
-          >
+          <Button onPress={handleSubmit(handleLogin)} isDisabled={isLoading || !isValid} bgColor="$darkBlue600">
             {isLoading ? (
               <ButtonSpinner mr="$1" />
             ) : (

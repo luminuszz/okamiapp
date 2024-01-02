@@ -20,8 +20,8 @@ import { logout } from "@features/auth/auth.slice";
 import { utcToZonedTime } from "date-fns-tz";
 import { Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { HomeRoutesParams } from "@routes/home.routes";
+import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { type HomeRoutesParams } from "@routes/home.routes";
 
 const currentTimezone = getCalendars()?.[0]?.timeZone ?? "";
 
@@ -46,7 +46,11 @@ export const Navbar: React.FC = () => {
     <Box px="$2" py="$2">
       <Box flexDirection="row" justifyContent="space-between" alignItems="center">
         <HStack alignItems="center" space="md">
-          <Pressable onPress={() => navigation.navigate("UserDetails")}>
+          <Pressable
+            onPress={() => {
+              navigation.navigate("UserDetails");
+            }}
+          >
             <Avatar borderRadius="$full">
               <AvatarFallbackText>{avatarName}</AvatarFallbackText>
               {user?.avatarImageUrl && <AvatarImage alt="avatar image" source={{ uri: user.avatarImageUrl }} />}

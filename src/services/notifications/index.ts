@@ -1,6 +1,7 @@
 import { LogLevel, OneSignal } from "react-native-onesignal";
 
 import { ONE_SIGNAL_APP_ID } from "@env";
+import { storageService } from "@services/localstorage";
 
 export const notificationService = async (): Promise<void> => {
   let hasPermissions: boolean;
@@ -16,9 +17,13 @@ export const notificationService = async (): Promise<void> => {
     }
 
     if (hasPermissions) {
-      OneSignal.Notifications.addEventListener("click", (event) => {
-        console.log("OneSignal: notification clicked:", event);
-      });
+      OneSignal.Notifications.addEventListener("click", (event) => {});
+
+      const userEmail = await storageService.get<string>("email");
+
+      if (userEmail) {
+        OneSignal.User.addEmail(userEmail);
+      }
     }
   }
 };
