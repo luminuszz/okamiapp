@@ -38,10 +38,7 @@ const getOneWork = async (id: string) => {
 };
 
 const updateWork = async ({ id, data }: { id: string; data: UpdateWorkInput }) => {
-  await okamiHttpGateway.put(`/work/update-work`, {
-    id,
-    data,
-  });
+  await okamiHttpGateway.put(`/work/update-work/${id}`, data);
 };
 
 const refreshWorks = async () => {
