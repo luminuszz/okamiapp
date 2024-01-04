@@ -31,6 +31,7 @@ export const WorkList: React.FC<Props> = ({ isLoading, works, retry }) => {
 
   return (
     <FlatList
+      ListEmptyComponent={<EmptyList isLoading={false} />}
       onRefresh={retry}
       refreshing={isLoading}
       style={{ marginBottom: 50, marginTop: 8 }}

@@ -1,5 +1,5 @@
-import React from "react";
 import Container from "@components/Container";
+import { useAppToast } from "@components/Toast";
 import {
   Button,
   ButtonText,
@@ -19,9 +19,11 @@ import {
   SelectTrigger,
   VStack,
 } from "@gluestack-ui/themed";
-import { useFetchAllWorksReadQuery, useMarkWorkFinishedMutation } from "@services/okami";
-import { useAppToast } from "@components/Toast";
 import { type BottonTabRoute } from "@routes/app.routes";
+import { okamiService } from "@services/okami/api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { filter } from "lodash";
+import React, { useEffect } from "react";
 
 type Props = BottonTabRoute<"FinishWork">;
 
@@ -29,25 +31,37 @@ const FinishWorkPage: React.FC<Props> = ({ navigation }) => {
   const [selectedWork, setSelectedWork] = React.useState<string | null>(null);
   const toast = useAppToast();
 
-  const { data: works, isLoading } = useFetchAllWorksReadQuery(null);
+  const { data: works, isLoading } = useQuery({
+    queryKey: ["works", "read"],
+    queryFn: async () => await okamiService.fetchAllWorks({ filter: "read" }),
+    select: (data) => filter(data, { isFinished: false }),
+  });
 
-  const [finishWork, { isLoading: isMutating }] = useMarkWorkFinishedMutation();
+  const {
+    mutate: finishWork,
+    isPending,
+    status,
+  } = useMutation({
+    mutationKey: ["markWorkFinished"],
+    mutationFn: okamiService.markWorkFinished,
+  });
 
   const handleFinishWork = () => {
     if (!selectedWork) return;
 
-    finishWork({ id: selectedWork })
-      .unwrap()
-      .then(() => {
-        toast.show("Obra finalizada com sucesso", "success");
-        navigation.navigate("Home");
-      })
-      .catch(() => {
-        toast.show("Erro ao finalizar obra", "error");
-      });
+    finishWork(selectedWork);
   };
 
-  console.log(selectedWork);
+  useEffect(() => {
+    if (status === "success") {
+      toast.show("Obra finalizada com sucesso", "success");
+      navigation.navigate("Home");
+    }
+
+    if (status === "error") {
+      toast.show("Erro ao finalizar obra", "error");
+    }
+  }, [status]);
 
   return (
     <Container>
@@ -77,15 +91,13 @@ const FinishWorkPage: React.FC<Props> = ({ navigation }) => {
                   <SelectDragIndicator />
                 </SelectDragIndicatorWrapper>
 
-                {works?.map((work) => (
-                  <SelectItem key={work.id} isDisabled={work.isFinished} label={work.name} value={work.id} />
-                ))}
+                {works?.map((work) => <SelectItem key={work.id} isDisabled={work.isFinished} label={work.name} value={work.id} />)}
               </SelectContent>
             </SelectPortal>
           </Select>
 
           <Button
-            isDisabled={isLoading || isMutating || !selectedWork}
+            isDisabled={isLoading || !selectedWork || isPending}
             mt="$4"
             onPress={() => {
               handleFinishWork();

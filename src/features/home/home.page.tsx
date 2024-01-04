@@ -4,21 +4,29 @@ import { Navbar } from "@components/Navbar";
 import { SearchBar } from "@features/home/components/SearchBar";
 import { VStack } from "@gluestack-ui/themed";
 import { type HomeRoute } from "@routes/home.routes";
+import { okamiService } from "@services/okami/api";
+import { clearSearchInputAtom, searchInputAtom } from "@store/searchInput";
+import { useQuery } from "@tanstack/react-query";
+import { compareDesc } from "date-fns";
+import { useAtomValue, useSetAtom } from "jotai";
 import Container from "../../components/Container";
 import { WorkList } from "../../components/WorkList";
-import { useAppDispatch, useAppSelector } from "@store/index";
-import { useFetchAllWorksUnreadQuery } from "@services/okami";
-import { selectSearch, setSearch } from "./home.slice";
-import { compareDesc } from "date-fns";
 
 interface Props extends HomeRoute<"HomeScreen"> {}
 
 const HomePage: React.FC<Props> = () => {
-  const { data = [], isFetching, isLoading, refetch } = useFetchAllWorksUnreadQuery(null);
+  const {
+    data = [],
+    isFetching,
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: ["works", "unread"],
+    queryFn: async () => await okamiService.fetchAllWorks({ filter: "unread" }),
+  });
 
-  const appDispatch = useAppDispatch();
-
-  const search = useAppSelector(selectSearch);
+  const search = useAtomValue(searchInputAtom);
+  const clearInput = useSetAtom(clearSearchInputAtom);
 
   const filteredWorks = useMemo(
     () =>
@@ -30,7 +38,7 @@ const HomePage: React.FC<Props> = () => {
 
   useEffect(() => {
     return () => {
-      appDispatch(setSearch(""));
+      clearInput();
     };
   }, []);
 

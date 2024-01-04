@@ -8,7 +8,7 @@ interface Props {
 
 const Container: React.FC<Props> = ({ children }) => {
   return (
-    <Box w="$full" h="$full" bgColor="$blueGray900" py="$8" px="$1">
+    <Box w="$full" h="$full" bgColor="$blueGray900" py="$8" px="$5">
       {children}
     </Box>
   );

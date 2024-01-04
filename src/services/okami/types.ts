@@ -25,6 +25,12 @@ export const updateWorkSchema = z.object({
   }),
 });
 
+
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+});
+
 export const fetchAllWorksUnreadQuerySchema = z.array(workSchema);
 
 export const UserSchema = z.object({
@@ -40,3 +46,4 @@ export const UserSchema = z.object({
 export type User = z.infer<typeof UserSchema>;
 export type Work = z.infer<typeof workSchema>;
 export type UpdateWorkInput = z.infer<typeof updateWorkSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;

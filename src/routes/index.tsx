@@ -1,27 +1,23 @@
-import React, { useEffect } from "react";
-import { AuthRoutes } from "@routes/auth.routes";
-import { useAppDispatch, useAppSelector } from "@store/index";
-import * as ExpoSplashScreen from "expo-splash-screen";
-import { setToken } from "@features/auth/auth.slice";
-import { AppRoutes } from "./app.routes";
 import { NavigationContainer } from "@react-navigation/native";
-import { storageService } from "@services/localstorage";
+import { AuthRoutes } from "@routes/auth.routes";
+import { isLoggedAtom, storageTokenLoadableAtom } from "@store/auth";
+import * as ExpoSplashScreen from "expo-splash-screen";
+import { useAtomValue } from "jotai";
+import React, { useEffect } from "react";
+import { AppRoutes } from "./app.routes";
 
 export default function Routes() {
-  const appDispatch = useAppDispatch();
+  const { state: tokenStatus } = useAtomValue(storageTokenLoadableAtom);
 
-  const isLogged = useAppSelector((state) => state.auth.token);
+  const isLogged = useAtomValue(isLoggedAtom);
 
   useEffect(() => {
     void ExpoSplashScreen.preventAutoHideAsync().then(async () => {
-      const tokenOrNull = await storageService.get<string>("token");
-
-      if (tokenOrNull) {
-        appDispatch(setToken(tokenOrNull));
+      if (tokenStatus !== "loading") {
+        await ExpoSplashScreen.hideAsync();
       }
-      await ExpoSplashScreen.hideAsync();
     });
-  }, []);
+  }, [tokenStatus]);
 
   return <NavigationContainer>{isLogged ? <AppRoutes /> : <AuthRoutes />}</NavigationContainer>;
 }

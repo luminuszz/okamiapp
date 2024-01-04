@@ -1,21 +1,10 @@
-import React from "react";
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallbackText,
-  AvatarImage,
-  Box,
-  Button,
-  ButtonIcon,
-  Heading,
-  HStack,
-  Text,
-  VStack,
-} from "@gluestack-ui/themed";
 import Container from "@components/Container";
-import { useGetCurrentUserQuery } from "@services/okami";
 import { AntDesign, Feather } from "@expo/vector-icons";
+import { Avatar, AvatarBadge, AvatarFallbackText, AvatarImage, Box, Button, ButtonIcon, Heading, HStack, Text, VStack } from "@gluestack-ui/themed";
 import { type HomeRoute } from "@routes/home.routes";
+import { okamiService } from "@services/okami/api";
+import { useQuery } from "@tanstack/react-query";
+import React from "react";
 
 interface InfoProps {
   title: string;
@@ -42,7 +31,7 @@ const Info = ({ icon, title, quantity = 0 }: InfoProps) => {
 interface Props extends HomeRoute<"UserDetails"> {}
 
 const UserPage: React.FC<Props> = ({ navigation }) => {
-  const { data: user } = useGetCurrentUserQuery(null);
+  const { data: user } = useQuery({ queryKey: ["userDetails"], queryFn: okamiService.getCurrentUser });
 
   const username = user?.name ? user.name[0].toUpperCase() + user.name.substring(1) : "";
 
@@ -65,16 +54,8 @@ const UserPage: React.FC<Props> = ({ navigation }) => {
           </Heading>
 
           <HStack space="lg">
-            <Info
-              icon={<Feather name="eye" size={20} color="yellow" />}
-              title="Acompanhando"
-              quantity={user?.readingWorksCount}
-            />
-            <Info
-              icon={<AntDesign name="check" size={20} color="green" />}
-              title="Finalizados"
-              quantity={user?.finishedWorksCount}
-            />
+            <Info icon={<Feather name="eye" size={20} color="yellow" />} title="Acompanhando" quantity={user?.readingWorksCount} />
+            <Info icon={<AntDesign name="check" size={20} color="green" />} title="Finalizados" quantity={user?.finishedWorksCount} />
           </HStack>
 
           <Button

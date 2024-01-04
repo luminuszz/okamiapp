@@ -1,52 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Container from "../../components/Container";
-import {
-  Box,
-  Button,
-  ButtonIcon,
-  ButtonSpinner,
-  ButtonText,
-  Heading,
-  HStack,
-  Input,
-  InputField,
-  VStack,
-} from "@gluestack-ui/themed";
-import { useMarkWorkReadMutation } from "@services/okami";
+import { Box, Button, ButtonIcon, ButtonSpinner, ButtonText, Heading, HStack, Input, InputField, VStack } from "@gluestack-ui/themed";
 import { AntDesign } from "@expo/vector-icons";
 import { useAppToast } from "@components/Toast";
 import { type HomeRoute } from "@routes/home.routes";
+import { useMutation } from "@tanstack/react-query";
+import { okamiService } from "@services/okami/api";
 
 interface Props extends HomeRoute<"UpdateChapter"> {}
 
 const UpdateChapterPage: React.FC<Props> = ({ route, navigation }) => {
-  const toast = useAppToast();
-
   const { chapter: currentChapter, workId } = route.params;
-
   const [chapter, setChapter] = useState(currentChapter.toString());
 
-  const [markAsRead, { isLoading: isMarkingRead }] = useMarkWorkReadMutation();
+  const toast = useAppToast();
 
-  const handleGoBack = (): void => {
+  const { mutate: markAsRead, status, isPending } = useMutation({ mutationFn: okamiService.markWorkRead, mutationKey: ["markWorkRead"] });
+
+  const handleGoBack = () => {
     navigation.goBack();
   };
 
-  const handleMarkAsRead = (): void => {
-    markAsRead({
-      chapter: Number(chapter),
-      id: workId,
-    })
-      .unwrap()
-      .then(() => {
-        toast.show("Marcado como lido", "success");
-
-        navigation.push("HomeScreen");
-      })
-      .catch(() => {
-        toast.show("Houve um erro ao marcar como lido", "error");
-      });
+  const handleMarkAsRead = () => {
+    markAsRead({ id: workId, chapter: Number(chapter) });
   };
+
+  useEffect(() => {
+    if (status === "success") {
+      navigation.push("HomeScreen");
+      toast.show("Marcado como lido", "success");
+    }
+
+    if (status === "error") {
+      toast.show("Houve um erro ao marcar como lido", "error");
+    }
+  }, [status]);
 
   return (
     <Container>
@@ -76,8 +64,8 @@ const UpdateChapterPage: React.FC<Props> = ({ route, navigation }) => {
               height={40}
             />
           </Input>
-          <Button onPress={handleMarkAsRead} isDisabled={isMarkingRead} backgroundColor="$green500">
-            {isMarkingRead ? (
+          <Button onPress={handleMarkAsRead} isDisabled={isPending} backgroundColor="$green500">
+            {isPending ? (
               <ButtonSpinner mr="$1" />
             ) : (
               <ButtonText fontWeight="$medium" fontSize="$sm">
