@@ -27,4 +27,12 @@ export const setTokenToNullAtom = atom(null, async (_, set) => {
 
 export const storageTokenLoadableAtom = loadable(tokenAtom);
 
-export const isLoggedAtom = atom((get) => get(storageTokenLoadableAtom).state === "hasData");
+
+
+export const isLoggedAtom = atom((get) => {
+  const token = get(storageTokenLoadableAtom);
+
+  if (token.state === "loading" || token.state === "hasError" || (token.state === "hasData" && !token.data)) return false;
+
+  if (token.state === "hasData" && token.data) return true;
+});
