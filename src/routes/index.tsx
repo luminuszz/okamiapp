@@ -1,27 +1,25 @@
-import React, { useEffect } from "react";
-import { AuthRoutes } from "@routes/auth.routes";
-import { useAppDispatch, useAppSelector } from "@store/index";
-import * as ExpoSplashScreen from "expo-splash-screen";
-import { setToken } from "@features/auth/auth.slice";
-import { AppRoutes } from "./app.routes";
+import { Box, Spinner } from "@gluestack-ui/themed";
 import { NavigationContainer } from "@react-navigation/native";
-import { storageService } from "@services/localstorage";
+import { AuthRoutes } from "@routes/auth.routes";
+import { isLoggedAtom, storageTokenLoadableAtom } from "@store/auth";
+import { useAtomValue } from "jotai";
+import React from "react";
+import { AppRoutes } from "./app.routes";
+
+const AppLoading = () => {
+  return (
+    <Box backgroundColor="$blueGray900" flex={1} w="$full" h="$full" justifyContent="center" alignItems="center">
+      <Spinner size="large" color="$secondary100" />
+    </Box>
+  );
+};
 
 export default function Routes() {
-  const appDispatch = useAppDispatch();
+  const { state: tokenStatus } = useAtomValue(storageTokenLoadableAtom);
 
-  const isLogged = useAppSelector((state) => state.auth.token);
+  const isLogged = useAtomValue(isLoggedAtom);
 
-  useEffect(() => {
-    void ExpoSplashScreen.preventAutoHideAsync().then(async () => {
-      const tokenOrNull = await storageService.get<string>("token");
-
-      if (tokenOrNull) {
-        appDispatch(setToken(tokenOrNull));
-      }
-      await ExpoSplashScreen.hideAsync();
-    });
-  }, []);
+  if (tokenStatus === "loading") return <AppLoading />;
 
   return <NavigationContainer>{isLogged ? <AppRoutes /> : <AuthRoutes />}</NavigationContainer>;
 }

@@ -1,28 +1,37 @@
-import React, { useEffect } from "react";
-import { useLazyRefreshWorksQuery } from "@services/okami";
-import { Button, ButtonIcon, Spinner } from "@gluestack-ui/themed";
-import { EvilIcons } from "@expo/vector-icons";
 import { useAppToast } from "@components/Toast";
+import { EvilIcons } from "@expo/vector-icons";
+import { Button, ButtonIcon, Spinner } from "@gluestack-ui/themed";
+import { okamiService } from "@services/okami/api";
+import { useQuery } from "@tanstack/react-query";
+import React, { useEffect } from "react";
 
 export const RefreshWorksButton: React.FC = () => {
   const toast = useAppToast();
 
-  const [refreshWorks, { isLoading: isRefreshingWorks, isSuccess }] = useLazyRefreshWorksQuery();
-
-  const handleRefreshWorks = (): void => {
-    void refreshWorks(undefined);
-  };
+  const {
+    status,
+    isLoading: isRefreshingWorks,
+    refetch,
+  } = useQuery({
+    queryKey: ["refreshWorks"],
+    queryFn: () => okamiService.refreshWorks,
+    enabled: false,
+  });
 
   useEffect(() => {
-    if (isSuccess) {
+    if (status === "success") {
       toast.show("Obras sendo atualizadas", "success");
     }
-  }, [isSuccess]);
+
+    if (status === "error") {
+      toast.show("Erro ao atualizar obras", "error");
+    }
+  }, [status]);
 
   return isRefreshingWorks ? (
     <Spinner color="gray.100" size="large" />
   ) : (
-    <Button size="xs" bgColor="transparent" isDisabled={isRefreshingWorks} onPress={handleRefreshWorks}>
+    <Button size="xs" bgColor="transparent" isDisabled={isRefreshingWorks} onPress={async () => await refetch()}>
       <ButtonIcon as={() => <EvilIcons name="refresh" size={40} color="white" />}></ButtonIcon>
     </Button>
   );

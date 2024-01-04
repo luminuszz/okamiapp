@@ -1,25 +1,17 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  ButtonIcon,
-  Input,
-  InputField,
-  InputIcon,
-} from "@gluestack-ui/themed";
-import { useAppDispatch, useAppSelector } from "@store/index";
-import { homeActions, selectSearch } from "../home.slice";
 import { AntDesign, Feather } from "@expo/vector-icons";
+import { Box, Button, ButtonIcon, Input, InputField, InputIcon } from "@gluestack-ui/themed";
+import { searchInputAtom } from "@store/searchInput";
+import { useAtom } from "jotai";
+import React, { useState } from "react";
 
 export const SearchBar: React.FC = () => {
-  const search = useAppSelector(selectSearch);
   const [inputIsShwoing, setInputIsShowing] = useState(false);
 
-  const dispatch = useAppDispatch();
-
-  const handleChange = (value: string): void => {
-    dispatch(homeActions.setSearch(value));
+  const [searchInput, setSearchInput] = useAtom(searchInputAtom);
+  const handleChange = (value: string) => {
+    setSearchInput(value.trim());
   };
+
   const closeInput = () => {
     setInputIsShowing(false);
   };
@@ -30,14 +22,14 @@ export const SearchBar: React.FC = () => {
         <InputIcon marginLeft="$1">
           <Feather name="search" size={20} color="white" />
         </InputIcon>
-        <InputField placeholder="Pesquisar..." color="white" value={search} w="$full" onChangeText={handleChange} />
+        <InputField placeholder="Pesquisar..." color="white" value={searchInput} w="$full" onChangeText={handleChange} />
 
-        {search.length > 0 && (
+        {searchInput.length > 0 && (
           <InputIcon
             mr="$1"
             onPress={() => {
               closeInput();
-              dispatch(homeActions.setSearch(""));
+              setSearchInput("");
             }}
           >
             <AntDesign name="close" size={20} color="white" />

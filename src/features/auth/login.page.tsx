@@ -16,13 +16,14 @@ import {
 } from "@gluestack-ui/themed";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type AuthRoute } from "@routes/auth.routes";
-import { storageService } from "@services/localstorage";
-import { useLoginMutation } from "@services/okami";
-import { useAppDispatch } from "@store/index";
+import { okamiService } from "@services/okami/api";
+import { tokenAtom } from "@store/auth";
+import { saveUserEmailAtom } from "@store/user";
+import { useMutation } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { setToken } from "./auth.slice";
 
 const formSchema = z.object({
   email: z.string().trim().email(),
@@ -37,8 +38,13 @@ interface Props extends AuthRoute<"LoginPage"> {}
 
 const LoginPage: React.FC<Props> = () => {
   const { show } = useAppToast();
-  const [makeLogin, { isLoading }] = useLoginMutation();
-  const dispatch = useAppDispatch();
+  const { isPending, mutateAsync: makeLogin } = useMutation({
+    mutationKey: ["login"],
+    mutationFn: okamiService.login,
+  });
+
+  const saveAccessToken = useSetAtom(tokenAtom);
+  const saveUserEmail = useSetAtom(saveUserEmailAtom);
 
   const {
     control,
@@ -54,15 +60,10 @@ const LoginPage: React.FC<Props> = () => {
 
   const handleLogin = (data: FormSchema): void => {
     makeLogin(data)
-      .unwrap()
       .then(async ({ token }) => {
         if (token) {
-          dispatch(setToken(token));
-
-          await storageService.multiSet([
-            ["token", token],
-            ["email", data.email],
-          ]);
+          await saveAccessToken(token);
+          await saveUserEmail(data.email);
         }
 
         show("Login feito com sucesso", "success");
@@ -124,13 +125,7 @@ const LoginPage: React.FC<Props> = () => {
             <Controller
               render={({ field }) => (
                 <Input>
-                  <InputField
-                    fontSize="$xs"
-                    placeholder="Senha"
-                    color="$secondary50"
-                    {...field}
-                    onChangeText={field.onChange}
-                  />
+                  <InputField fontSize="$xs" placeholder="Senha" color="$secondary50" {...field} onChangeText={field.onChange} />
                 </Input>
               )}
               name="password"
@@ -138,8 +133,8 @@ const LoginPage: React.FC<Props> = () => {
             />
           </FormControl>
 
-          <Button onPress={handleSubmit(handleLogin)} isDisabled={isLoading || !isValid} bgColor="$darkBlue600">
-            {isLoading ? (
+          <Button onPress={handleSubmit(handleLogin)} isDisabled={isPending || !isValid} bgColor="$darkBlue600">
+            {isPending ? (
               <ButtonSpinner mr="$1" />
             ) : (
               <ButtonText fontWeight="$medium" fontSize="$sm">

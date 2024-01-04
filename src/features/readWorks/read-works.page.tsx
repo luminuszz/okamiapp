@@ -2,19 +2,28 @@ import Container from "@components/Container";
 import { Navbar } from "@components/Navbar";
 import { WorkList } from "@components/WorkList";
 import { SearchBar } from "@features/home/components/SearchBar";
-import { selectSearch, setSearch } from "@features/home/home.slice";
 import { VStack } from "@gluestack-ui/themed";
-import { useFetchAllWorksReadQuery } from "@services/okami";
-import { useAppDispatch, useAppSelector } from "@store/index";
+import { okamiService } from "@services/okami/api";
+import { clearSearchInputAtom, parsedInputValueAtom } from "@store/searchInput";
+import { useQuery } from "@tanstack/react-query";
 import { compareDesc } from "date-fns";
+import { useAtomValue, useSetAtom } from "jotai";
 import React, { useEffect, useMemo } from "react";
 
-const ReadWorksList = (props) => {
-  const { data = [], isFetching, isLoading, refetch } = useFetchAllWorksReadQuery(null);
+const ReadWorksList = () => {
+  const {
+    data = [],
+    isFetching,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["works", "read"],
+    queryFn: async () => await okamiService.fetchAllWorks({ filter: "read" }),
+  });
 
-  const appDispatch = useAppDispatch();
+  const search = useAtomValue(parsedInputValueAtom);
 
-  const search = useAppSelector(selectSearch);
+  const clearInput = useSetAtom(clearSearchInputAtom);
 
   const filteredWorks = useMemo(
     () =>
@@ -26,7 +35,7 @@ const ReadWorksList = (props) => {
 
   useEffect(() => {
     return () => {
-      appDispatch(setSearch(""));
+      clearInput();
     };
   }, []);
 

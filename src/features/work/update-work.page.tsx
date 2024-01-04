@@ -21,8 +21,11 @@ import {
 } from "@gluestack-ui/themed";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type HomeRoute } from "@routes/home.routes";
-import { useGetOneWorkQuery, useUpdateWorkMutation } from "@services/okami";
-import React from "react";
+import { okamiService } from "@services/okami/api";
+import { type Work } from "@services/okami/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { map } from "lodash";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -40,11 +43,40 @@ const UpdateWorkPage: React.FC<Props> = ({ navigation, route }) => {
   const toast = useAppToast();
   const { workId } = route.params;
 
-  const [mutateWork, { isLoading: isEditingWork }] = useUpdateWorkMutation();
+  const queryClient = useQueryClient();
 
-  const { data: work, isLoading } = useGetOneWorkQuery(workId);
+  const {
+    mutate: mutateWork,
+    status,
+    isPending,
+  } = useMutation({
+    mutationFn: okamiService.updateWork,
+    mutationKey: ["updateWork"],
+    onMutate: (payload) => {
+      queryClient.setQueryData(["works", "read"], (old: Work[]) =>
+        map(old, (work) => {
+          if (work.id === payload.id) {
+            return {
+              ...work,
+              ...payload.data,
+            };
+          }
 
-  console.log({ route });
+          return work;
+        })
+      );
+    },
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["works", "read"] });
+      await queryClient.invalidateQueries({ queryKey: ["getOneWork", workId] });
+    },
+  });
+
+  const { data: work, isLoading } = useQuery({
+    queryKey: ["getOneWork", workId],
+    queryFn: async () => await okamiService.getOneWork(workId),
+  });
 
   const {
     control,
@@ -60,23 +92,26 @@ const UpdateWorkPage: React.FC<Props> = ({ navigation, route }) => {
   });
 
   const handleEditWork = (values: FormValues) => {
-    void mutateWork({
+    mutateWork({
       id: workId,
       data: {
-        name: values.name,
-        chapter: 10000,
+        chapter: Number(values.chapter),
         url: values.url,
-      },
-    })
-      .unwrap()
-      .then(() => {
-        toast.show("Obra atualizada com sucesso!", "success");
-        navigation.goBack();
-      })
-      .catch(() => {
-        toast.show("houve um erro ao atualizar a obra", "error");
-      });
+        name: values.name,
+      } as any,
+    });
   };
+
+  useEffect(() => {
+    if (status === "success") {
+      navigation.goBack();
+      toast.show("Obra atualizada com sucesso!", "success");
+    }
+
+    if (status === "error") {
+      toast.show("houve um erro ao atualizar a obra", "error");
+    }
+  }, [status]);
 
   if (isLoading) {
     return (
@@ -120,17 +155,7 @@ const UpdateWorkPage: React.FC<Props> = ({ navigation, route }) => {
               }}
             />
 
-            <Badge
-              borderRadius="$2xl"
-              px="$5"
-              m="$2"
-              left="$3"
-              bottom="$3"
-              position="absolute"
-              size="md"
-              variant="outline"
-              action="info"
-            >
+            <Badge borderRadius="$2xl" px="$5" m="$2" left="$3" bottom="$3" position="absolute" size="md" variant="outline" action="info">
               <BadgeText textTransform="none">{work?.category}</BadgeText>
             </Badge>
           </Box>
@@ -166,7 +191,7 @@ const UpdateWorkPage: React.FC<Props> = ({ navigation, route }) => {
           </FormControl>
 
           <Button isDisabled={!isValid} mt="$4" onPress={handleSubmit(handleEditWork)}>
-            {isEditingWork ? <ButtonSpinner /> : <ButtonText>Editar</ButtonText>}
+            {isPending ? <ButtonSpinner /> : <ButtonText>Editar</ButtonText>}
           </Button>
         </VStack>
       </Box>
